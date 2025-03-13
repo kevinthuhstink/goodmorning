@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-grafana
+  labels:
+    app: web-grafana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web-grafana
+  template:
+    metadata:
+      labels:
+        app: web-grafana
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: node-role.kubernetes.io/control-plane
+                    operator: Exists
+      tolerations:
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists
+          effect: NoSchedule
+      containers:
+        - name: grafana
+          image: grafana/grafana-enterprise
+          ports:
+            - containerPort: 3000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hanlon-clickhouse
+  labels:
+    app: hanlon-clickhouse
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hanlon-clickhouse
+  template:
+    metadata:
+      labels:
+        app: hanlon-clickhouse
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: node-role.kubernetes.io/worker
+                    operator: Exists
+      containers:
+        - name: ch
+          image: clickhouse
+          ports:
+            - containerPort: 18123
+          env:
+            - name: CLICKHOUSE_USER
+              value: "k3stestuser"
+            - name: CLICKHOUSE_PASSWORD
+              value: "k3stestuser"
