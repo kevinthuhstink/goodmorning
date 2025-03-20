@@ -58,9 +58,17 @@ spec:
         - name: ch
           image: clickhouse
           ports:
-            - containerPort: 18123
+            - containerPort: 8123
           env:
             - name: CLICKHOUSE_USER
               value: "k3stestuser"
             - name: CLICKHOUSE_PASSWORD
               value: "k3stestuser"
+        - name: vmmetrics
+          image: victoriametrics/victoria-metrics
+          ports:
+            - containerPort: 8428
+        - name: vmlogs
+          image: victoriametrics/victoria-logs
+          ports:
+            - containerPort: 9428

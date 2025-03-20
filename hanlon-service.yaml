@@ -6,5 +6,12 @@ spec:
   selector:
     app: hanlon-clickhouse
   ports:
-  - port: 8123
-    targetPort: 8123
+    - name: ch
+      port: 8123
+      targetPort: 8123
+    - name: vmetrics
+      port: 8428
+      targetPort: 8428
+    - name: vmlogs
+      port: 9428
+      targetPort: 9428
