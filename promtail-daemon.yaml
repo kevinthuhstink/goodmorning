@@ -6,11 +6,11 @@ metadata:
 spec:
   selector:
     matchLabels:
-      name: promtail
+      app-logger: promtail
   template:
     metadata:
       labels:
-        name: promtail
+        app-logger: promtail
     spec:
       serviceAccount: promtail-serviceaccount
       containers:
@@ -53,7 +53,7 @@ data:
       grpc_listen_port: 0
 
     clients:
-    - url: http://10.42.1.21:9428/insert/loki/api/v1/push
+    - url: http://hanlon-clickhouse.default:9428/insert/loki/api/v1/push
 
     positions:
       filename: /tmp/positions.yaml

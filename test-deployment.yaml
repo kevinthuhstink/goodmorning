@@ -30,6 +30,7 @@ spec:
           image: grafana/grafana-enterprise
           ports:
             - containerPort: 3000
+
 ---
 apiVersion: apps/v1
 kind: Deployment
