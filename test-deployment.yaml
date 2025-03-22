@@ -30,6 +30,14 @@ spec:
           image: grafana/grafana-enterprise
           ports:
             - containerPort: 3000
+          volumeMounts:
+            - mountPath: /var/lib/grafana
+              name: grafana-data
+      volumes:
+        - name: grafana-data
+          hostPath:
+            path: /home/ec2-user/grafana
+            type: Directory
 
 ---
 apiVersion: apps/v1
@@ -65,11 +73,40 @@ spec:
               value: "k3stestuser"
             - name: CLICKHOUSE_PASSWORD
               value: "k3stestuser"
+          volumeMounts:
+            - mountPath: /var/lib/clickhouse
+              name: ch-data
+            - mountPath: /var/log/clickhouse-server
+              name: ch-server-logs
         - name: vmmetrics
           image: victoriametrics/victoria-metrics
           ports:
             - containerPort: 8428
+          volumeMounts:
+            - mountPath: /victoria-metrics-data
+              name: vmmetrics-data
         - name: vmlogs
           image: victoriametrics/victoria-logs
           ports:
             - containerPort: 9428
+          volumeMounts:
+            - mountPath: /victoria-logs-data
+              name: vmlogs-data
+
+      volumes:
+        - name: ch-data
+          hostPath:
+            path: /home/ec2-user/clickhouse
+            type: Directory
+        - name: ch-server-logs
+          hostPath:
+            path: /home/ec2-user/logs/clickhouse
+            type: Directory
+        - name: vmmetrics-data
+          hostPath:
+            path: /home/ec2-user/victoriametrics
+            type: Directory
+        - name: vmlogs-data
+          hostPath:
+            path: /home/ec2-user/victorialogs
+            type: Directory
