@@ -1,60 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: web-grafana
+  name: hanlon-deployment
   labels:
-    app: web-grafana
+    app: hanlon-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: web-grafana
+      group: hanlon
   template:
     metadata:
       labels:
-        app: web-grafana
-    spec:
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: node-role.kubernetes.io/control-plane
-                    operator: Exists
-      tolerations:
-        - key: node-role.kubernetes.io/control-plane
-          operator: Exists
-          effect: NoSchedule
-      containers:
-        - name: grafana
-          image: grafana/grafana-enterprise
-          ports:
-            - containerPort: 3000
-          volumeMounts:
-            - mountPath: /var/lib/grafana
-              name: grafana-data
-      volumes:
-        - name: grafana-data
-          hostPath:
-            path: /home/ec2-user/grafana
-            type: Directory
-
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: hanlon-clickhouse
-  labels:
-    app: hanlon-clickhouse
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: hanlon-clickhouse
-  template:
-    metadata:
-      labels:
-        app: hanlon-clickhouse
+        group: hanlon
     spec:
       affinity:
         nodeAffinity:
@@ -78,6 +36,7 @@ spec:
               name: ch-data
             - mountPath: /var/log/clickhouse-server
               name: ch-server-logs
+
         - name: vmmetrics
           image: victoriametrics/victoria-metrics
           ports:
@@ -92,6 +51,36 @@ spec:
           volumeMounts:
             - mountPath: /victoria-logs-data
               name: vmlogs-data
+
+        - name: starline-api
+          image: ghcr.io/ssmif-quant/starline-api
+          ports:
+            - containerPort: 8080
+          env:
+            - name: RSA_PUB_KEY
+              value: "/root/keys/public.pem"
+            - name: PORT
+              value: "8080"
+            - name: DB_NAME
+              value: "ssmif_stag"
+            - name: DB_USER
+              value: "ssmif"
+            - name: DB_PASSWORD
+              value: "ztH0QCQ5yZQNCTCZNMuo"
+            - name: DB_HOST
+              value: "http://hanlon-clickhouse.default"
+            - name: DB_PORT
+              value: "18123"
+            - name: OPTIMIZER_ADDR
+              value: "TODO"
+            - name: WEB_HOST
+              value: "http://web-starline.default:3000"
+          volumeMounts:
+            - mountPath: /root/keys/public.pem
+              name: starline-rsa-keys
+
+      imagePullSecrets:
+        - name: regcred
 
       volumes:
         - name: ch-data
@@ -110,3 +99,7 @@ spec:
           hostPath:
             path: /home/ec2-user/victorialogs
             type: Directory
+        - name: starline-rsa-keys
+          hostPath:
+            path: /home/ec2-user/.ssh/id_rsa.pub
+            type: File

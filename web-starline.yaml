@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: web-grafana
+  name: web-starline
   labels:
     app-logger: promtail
 spec:
   type: LoadBalancer
   selector:
-    app: web-grafana
+    group: web
   ports:
-  - port: 3000
-    targetPort: 3000
+    - port: 3000
+      targetPort: 3000
