@@ -39,6 +39,10 @@ spec:
 
         - name: starline-web
           image: ghcr.io/ssmif-quant/starline-web
+          env:
+            - name: NEXT_PUBLIC_SERVER_URL
+              value: "http://hanlon-starline.default:8080"
+
           ports:
             - containerPort: 3000
 
